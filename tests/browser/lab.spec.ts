@@ -99,7 +99,9 @@ test("real WebGL, shared parameter changes, and independent backgrounds", async 
     )
     .toBeGreaterThan(Number(a));
   await page.getByRole("button", { name: "Pause light", exact: true }).click();
-  await page.getByRole("button", { name: "Reset all", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Reset settings", exact: true })
+    .click();
   await page.getByRole("button", { name: "Metal", exact: true }).click();
   await page.getByRole("button", { name: "Diffuse", exact: true }).click();
   await page.waitForTimeout(150);
@@ -236,7 +238,7 @@ test("guide, Japanese, repeated tab switches, and phone layout", async ({
   await expect(page.getByLabel("照明環境", { exact: true })).toHaveValue("sky");
   await page.getByLabel("照明環境", { exact: true }).selectOption("sunset");
   await expect(page.getByLabel("背景", { exact: true })).toHaveValue("sunset");
-  await page.getByRole("button", { name: "すべてリセット" }).click();
+  await page.getByRole("button", { name: "設定をリセット" }).click();
   await expect(page.getByLabel("背景と照明環境を連動")).not.toBeChecked();
   await expect(page.getByLabel("背景", { exact: true })).toHaveValue("dark");
   await expect(page.getByRole("alert")).toHaveCount(0);

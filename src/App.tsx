@@ -9,6 +9,10 @@ import Guide from "./Guide";
 import { LabRenderer } from "./renderer";
 import {
   defaults,
+  applyMaterialPreset,
+  applyExperiment,
+  resetSettings,
+  updateSetting,
   experiments,
   modelNames,
   models,
@@ -137,18 +141,7 @@ export default function App() {
     lab = useRef<LabRenderer | null>(null);
   const t = (en: string, ja: string) => (lang === "ja" ? ja : en);
   const set = <K extends keyof Settings>(key: K, value: Settings[K]) => {
-    setSettings((old) => {
-      const next = { ...old, [key]: value };
-      if (key === "background" && old.linkBackground && value !== "dark")
-        next.environment = value as Environment;
-      if (key === "environment" && old.linkBackground)
-        next.background = value as Environment;
-      if (key === "linkBackground" && value) {
-        if (old.background === "dark") next.background = old.environment;
-        else next.environment = old.background;
-      }
-      return next;
-    });
+    setSettings((old) => updateSetting(old, key, value));
   };
   useEffect(() => {
     document.documentElement.lang = lang;
@@ -186,15 +179,12 @@ export default function App() {
     window.scrollTo({ top: 0 });
   };
   const chooseExperiment = (id: string) => {
-    const x = experiments.find((e) => e.id === id)!;
-    setSettings({ ...defaults, ...x.values });
+    setSettings((s) => applyExperiment(s, id));
     setActiveExperiment(id);
-    lab.current?.resetCamera();
   };
   const reset = () => {
-    setSettings({ ...defaults });
+    setSettings((s) => resetSettings(s));
     setActiveExperiment(null);
-    lab.current?.resetCamera();
   };
   const visibleModels = settings.mode === "compare" ? models : [settings.model];
   const hasClassic =
@@ -298,6 +288,9 @@ export default function App() {
                       }
                     >
                       <option value="sphere">{t("Sphere", "球")}</option>
+                      <option value="teapot">
+                        {t("Utah teapot", "Utah ティーポット")}
+                      </option>
                       <option value="knot">{t("Knot", "結び目")}</option>
                       <option value="cube">
                         {t("Rounded cube", "角丸キューブ")}
@@ -509,27 +502,23 @@ export default function App() {
                 <section>
                   <h2>{t("Material", "材質")}</h2>
                   <div className="preset-row">
-                    <button
-                      onClick={() => {
-                        setSettings((s) => ({
-                          ...s,
-                          color: "#ce9458",
-                          metalness: 0,
-                          roughness: 0.25,
-                          shininess: 64,
-                          ior: 1.5,
-                        }));
-                        setActiveExperiment(null);
-                      }}
-                    >
-                      {t("Plastic", "プラスチック")}
-                    </button>
-                    <button onClick={() => chooseExperiment("metal")}>
-                      {t("Metal", "金属")}
-                    </button>
-                    <button onClick={() => chooseExperiment("rough")}>
-                      {t("Rough", "粗い表面")}
-                    </button>
+                    {(
+                      [
+                        ["plastic", t("Plastic", "プラスチック")],
+                        ["metal", t("Metal", "金属")],
+                        ["rough", t("Rough", "粗い表面")],
+                      ] as const
+                    ).map(([id, label]) => (
+                      <button
+                        key={id}
+                        onClick={() => {
+                          setSettings((s) => applyMaterialPreset(s, id));
+                          setActiveExperiment(null);
+                        }}
+                      >
+                        {label}
+                      </button>
+                    ))}
                   </div>
                   <label className="color-label">
                     <span>{t("Base color", "ベースカラー")}</span>
@@ -727,12 +716,19 @@ export default function App() {
                     onChange={(v) => set("toneMapping", v)}
                   />
                   <p className="pipeline-caption">
-                    Linear light → {settings.toneMapping ? "ACES → " : ""}sRGB
+                    {t("Linear light", "線形の光")} → {t("Exposure", "露出")} →{" "}
+                    {settings.toneMapping ? "ACES → " : ""}sRGB
+                  </p>
+                  <p className="hint">
+                    {t(
+                      "sRGB output is always on. ACES compresses HDR highlights (default); off keeps the linear result with display clipping. Neither changes the base-color input.",
+                      "sRGB 出力は常に有効です。ACES は HDR の明るい部分を圧縮します（初期設定）。オフでは線形の結果をそのまま表示し、範囲外はクリップされます。入力色の指定方法は変わりません。",
+                    )}
                   </p>
                 </section>
                 <div className="inspector-actions">
                   <button onClick={reset}>
-                    {t("Reset all", "すべてリセット")}
+                    {t("Reset settings", "設定をリセット")}
                   </button>
                   <button onClick={() => lab.current?.download()}>
                     {t("Save render PNG", "描画を PNG 保存")}

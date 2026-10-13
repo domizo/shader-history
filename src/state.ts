@@ -4,7 +4,7 @@ export type Language = "en" | "ja";
 export interface Settings {
   mode: "compare" | "single";
   model: Model;
-  geometry: "sphere" | "knot" | "cube";
+  geometry: "sphere" | "knot" | "cube" | "teapot";
   color: string;
   roughness: number;
   metalness: number;
@@ -31,7 +31,7 @@ export const defaults: Settings = {
   mode: "compare",
   model: "pbr",
   geometry: "sphere",
-  color: "#ce9458",
+  color: "#0061ff",
   roughness: 0.32,
   metalness: 0,
   ior: 1.5,
@@ -135,4 +135,72 @@ export function safeLanguage(): Language {
   } catch {
     return "ja";
   }
+}
+
+// Presets change only material properties; experiments can reset lighting but
+// never navigate away from the user's selected view, model, or shape.
+export const materialPresets = {
+  plastic: {
+    color: defaults.color,
+    metalness: 0,
+    roughness: 0.25,
+    shininess: 64,
+    ior: 1.5,
+  },
+  metal: {
+    color: "#dca55b",
+    metalness: 1,
+    roughness: 0.22,
+    shininess: 48,
+    ior: 1.5,
+  },
+  rough: {
+    color: defaults.color,
+    metalness: 0,
+    roughness: 0.65,
+    shininess: 8,
+    ior: 1.5,
+  },
+} satisfies Record<string, Partial<Settings>>;
+export function applyMaterialPreset(
+  settings: Settings,
+  preset: keyof typeof materialPresets,
+): Settings {
+  return { ...settings, ...materialPresets[preset] };
+}
+export function applyExperiment(settings: Settings, id: string): Settings {
+  const experiment = experiments.find((x) => x.id === id);
+  if (!experiment) return settings;
+  return {
+    ...defaults,
+    ...experiment.values,
+    mode: settings.mode,
+    model: settings.model,
+    geometry: settings.geometry,
+  };
+}
+export function updateSetting<K extends keyof Settings>(
+  settings: Settings,
+  key: K,
+  value: Settings[K],
+): Settings {
+  const next = { ...settings, [key]: value };
+  if (key === "background" && settings.linkBackground && value !== "dark")
+    next.environment = value as Environment;
+  if (key === "environment" && settings.linkBackground)
+    next.background = value as Environment;
+  if (key === "linkBackground" && value) {
+    if (settings.background === "dark") next.background = settings.environment;
+    else next.environment = settings.background;
+  }
+  return next;
+}
+
+export function resetSettings(settings: Settings): Settings {
+  return {
+    ...defaults,
+    mode: settings.mode,
+    model: settings.model,
+    geometry: settings.geometry,
+  };
 }

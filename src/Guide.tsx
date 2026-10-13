@@ -344,6 +344,38 @@ export default function Guide({
               "カラーピッカーの sRGB 値を一度だけ Linear-sRGB に変換します。直接光と環境光は線形空間で加算し、露出と任意の ACES トーンマッピングの後、最後に一度だけ sRGB に変換します。4方式とも同じパイプラインです。",
             )}
           </p>
+          <div className="explain-row">
+            <h3>
+              {t(
+                "ACES and sRGB do different jobs",
+                "ACES と sRGB は役割が違う",
+              )}
+            </h3>
+            <p>
+              {t(
+                "sRGB defines the display color encoding. ACES Filmic is the optional Three.js tone mapper that compresses bright HDR lighting before sRGB output. This lab defaults to ACES because its lights can exceed display range; this is a viewing choice, not a guarantee of physical truth. Turn ACES off for an uncompressed linear-light response, followed by sRGB encoding and display-range clipping. The requested #0061ff is an sRGB base-color input, not a promise that every lit pixel equals that blue.",
+                "sRGB は表示色の符号化方式です。Three.js の ACES Filmic は、その前段で HDR の明るい光を表示範囲へ圧縮するトーンマッパーです。この Lab の光は表示範囲を超えるため初期設定は ACES にしていますが、これは見せ方の選択で、物理的な正しさを保証するものではありません。オフにすると線形の明るさを圧縮せず比較でき、表示範囲外の値はクリップされます。指定された #0061ff は sRGB のベースカラーであり、照明後の全画素が同じ青になるわけではありません。",
+              )}
+            </p>
+          </div>
+          <p>
+            <a
+              href="https://threejs.org/manual/pages/color-management.html"
+              target="_blank"
+              rel="noreferrer"
+            >
+              {t("Three.js: color management", "Three.js: カラーマネジメント")}{" "}
+              ↗
+            </a>
+            {" · "}
+            <a
+              href="https://threejs.org/docs/pages/WebGLRenderer.html#toneMapping"
+              target="_blank"
+              rel="noreferrer"
+            >
+              {t("Renderer tone mapping", "レンダラーのトーンマッピング")} ↗
+            </a>
+          </p>
         </section>
         <section id="implementation">
           <h2>{t("What this lab computes", "この Lab の計算と限界")}</h2>

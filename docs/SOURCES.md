@@ -11,3 +11,7 @@ References reviewed 2026-10-13. Dates identify selected publications, not an exh
 - [Three.js official color-management documentation](https://threejs.org/manual/pages/color-management.html). Linear working color, sRGB input/output, and the custom ShaderMaterial output conversion requirement. Runtime pinned to r180 and checked against installed source
 
 Research PDFs, third-party figures, and photographs are not redistributed. The Guide uses original paraphrases and newly constructed mathematical diagrams.
+
+- [Three.js WebGLRenderer output and tone-mapping properties](https://threejs.org/docs/pages/WebGLRenderer.html#toneMapping). sRGB output encoding and optional tone mapping are separate settings
+- [Pinned r180 ACES Filmic implementation](https://github.com/mrdoob/three.js/blob/r180/src/renderers/shaders/ShaderChunk/tonemapping_pars_fragment.glsl.js). The exact fitted transform used by this app
+- [Pinned r180 Utah TeapotGeometry source](https://github.com/mrdoob/three.js/blob/r180/examples/jsm/geometries/TeapotGeometry.js). Martin Newell’s patch data, analytic normals, tessellation, and recommended double-sided rendering; distributed under the bundled Three.js MIT license

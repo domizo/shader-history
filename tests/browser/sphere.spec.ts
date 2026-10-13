@@ -75,6 +75,7 @@ test("sphere reflections at low roughness, rotated environment, and polar view",
     page.getByLabel("Reflection model", { exact: true }),
   ).toHaveValue("pbr");
   await range(page, "Intensity", 0);
+  await range(page, "Environment intensity", 1.2);
   await range(page, "Roughness · PBR", 0.08);
   expect((await completedPixels(page)).lit).toBeGreaterThan(1000);
   await page

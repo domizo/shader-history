@@ -9,13 +9,17 @@ Shader History is an English/Japanese interactive guide to Lambert, Phong, Blinn
 ## What you can explore
 
 - Four custom GLSL models, side by side or individually
-- Synchronized orbit camera; a smooth geodesic sphere, knot, or rounded cube
+- Synchronized orbit camera; a smooth geodesic sphere, Utah teapot, knot, or rounded cube
 - Plastic, metal, and rough-surface presets, with model-appropriate parameters
 - Moving direct light, procedural environment lighting, and an independently selected visible background
 - Diffuse/specular isolation, exposure, ACES tone mapping, and PNG export
 - A bilingual Guide with direction diagrams, a lobe plot, historical context, equations, limitations, and links to primary research
 
 The sphere uses 20,480 roughly uniform triangles with shared vertices and radial smooth normals. It has no latitude/longitude pole fan. The classic implementations are BRDF-style teaching variants, not exact reconstructions of the original papers. PBR is a family of approaches, not one shader invented on a single date.
+
+The initial base color and Plastic/Rough presets use **sRGB #0061ff**, as requested; the Metal preset keeps an illustrative gold color. Presets change material values only. Experiments and **Reset settings** preserve Single/Compare, the selected shader, shape, and camera; use **Compare** or **Reset view** explicitly when desired. ACES is enabled by default for the HDR lighting, while sRGB output is always enabled. These are separate stages, described in the Guide.
+
+The Utah teapot uses the official Three.js addon with analytic patch normals, 18 segments per patch edge (20,592 triangles), and two-sided patch shading. It is centered and uniformly scaled to the sphere’s 1.7-unit maximum extent. All four models share the same selected mesh.
 
 ## Get started
 
@@ -77,6 +81,10 @@ Original project code and documentation: [MIT](LICENSE), copyright © 2026 domiz
 Lambert、Phong、Blinn–Phong、現代の微小面 PBR を、同じ形状・視点・照明・色処理で比較する学習プロジェクトです。単体表示、プラスチック・金属・粗い表面のプリセット、材質のパラメータ、ライトの移動、背景と環境照明の独立操作、拡散／鏡面の分離、PNG 保存を試せます。
 
 球は共有頂点と放射方向の滑らかな法線を持つ、20,480枚のほぼ均一な三角形で構成しています。緯度・経度分割のように極へ多数の三角形が集まる構造ではありません。Guide は方向ベクトルの基礎から、各手法が改善しようとした問題、式、近似の限界、一次資料までを日英で収録しています。
+
+初期色と Plastic／Rough プリセットは、指定された **sRGB #0061ff** です。金属プリセットは観察用の金色を維持します。材質プリセットは材質のみを変え、実験や「設定をリセット」でも単体／比較・選択中のシェーダー・形状・視点を維持します。「比較」「視点を戻す」は明示的に操作できます。ACES は HDR 照明向けの初期設定で、sRGB 出力は常に有効です。両者は別の処理です。
+
+Utah ティーポットは Three.js 公式 addon のパッチ法線を使い、20,592 三角形・両面表示で描画します。中心を揃え、最大幅を球と同じ1.7に一様スケーリングします。4方式とも同じメッシュを共有します。
 
 ### ローカルで起動する
 

@@ -4,7 +4,7 @@
 
 Every comparison cell renders the same BufferGeometry with the same PerspectiveCamera orientation, distance, directional-light direction/intensity, color input, environment radiance function, exposure, and color pipeline. Each cell has its own viewport with the same aspect ratio. The material ID is the intentional difference. The renderer uses one canvas/context and scissor viewports. Camera drag, zoom, and keyboard orbit affect every cell.
 
-The base-color input is sRGB and is converted by `THREE.Color` exactly once. All reflection arithmetic takes place in Linear-sRGB. `tonemapping_fragment` then `colorspace_fragment` run once at final output. Exposure is 2^EV. With tone mapping off, the renderer explicitly applies exposure to incoming direct/environment radiance and the backdrop; with ACES on, Three.js applies exposure during tone mapping.
+The base-color input is sRGB and is converted by `THREE.Color` exactly once. All reflection arithmetic takes place in Linear-sRGB. `tonemapping_fragment` then `colorspace_fragment` run once at final output. The requested default base color is sRGB `#0061ff`, decoded to approximately `[0, 0.11953843, 1]`; it is not described as an official Disney default. Exposure is 2^EV. With tone mapping off, the renderer explicitly applies exposure to incoming direct/environment radiance and the backdrop; with ACES on, Three.js applies exposure during tone mapping.
 
 ## Material equations
 
@@ -59,3 +59,11 @@ The integrator now uses two world-fixed hemisphere charts. A tangent starts at w
 Smoothstep weights sum to one; both estimates use the original matching PDFs and BRDF weights. A diffuse chart uses 24 directions and a specular chart 48. Both charts are evaluated only in the overlap, so a lobe uses at most twice its usual samples there. The overlap covers 10% of uniformly distributed axis directions. Actual pixel coverage and hardware cost depend on shape, view, model, and GPU; no physical-phone performance guarantee is implied.
 
 Lambert and classic diffuse samples remain independent of camera position. PBR diffuse retains the view dependence of its existing Fresnel weight, and specular retains its BRDF's view dependence. No camera-anchored sample frame is used. The BRDF equations, PDFs, procedural radiance, and color pipeline are unchanged. This removes the artificial frame switch, not finite-sample approximation error; visible patterns can still occur, especially for narrow bright sources.
+
+## Utah teapot and settings scope
+
+The Utah teapot comes from the MIT-licensed Three.js r180 `TeapotGeometry` addon, which tessellates Martin Newell’s Bézier patch dataset. We use 18 segments per patch edge: 11,552 vertices and 20,592 nondegenerate triangles. Body, lid, bottom, fitted lid, and the addon’s Blinn vertical proportion option are enabled. The mesh is centered by its bounding box and uniformly scaled to a maximum extent of 1.7, matching the sphere diameter without changing camera or directional/environment lighting. Patch analytic normals are retained; the model intentionally has separate patches and lid/spout openings, so it is not treated as a welded watertight sphere. Teapot materials use `DoubleSide`, with `gl_FrontFacing` reversing the custom fragment normal on exposed backs. Other shapes remain front-sided. Every comparison cell uses the same geometry instance and transform.
+
+Material presets modify material values only; Plastic and Rough use the requested blue, while Metal retains an illustrative gold. Experiments reset their scene settings but preserve mode, selected model, shape, and camera. Reset settings restores default material/light/display parameters with those viewing choices preserved. Only explicit view-mode controls switch Single/Compare; Reset view separately resets the camera.
+
+The default ACES Filmic option is Three.js’s fitted ACES-inspired display transform, not a complete ACES production pipeline or proof of physical correctness. It compresses the lab’s HDR highlights before sRGB output; disabling it keeps sRGB encoding and display-range clipping. The browser/display can apply further device color management after the sRGB canvas output.

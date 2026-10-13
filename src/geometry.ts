@@ -1,3 +1,4 @@
+import { TeapotGeometry } from "three/addons/geometries/TeapotGeometry.js";
 import { BufferGeometry, Float32BufferAttribute } from "three";
 
 export const SPHERE_RADIUS = 0.85;
@@ -85,6 +86,38 @@ export function createGeodesicSphere(
   // Analytic radial normals avoid face averaging, UV seams, and duplicate-vertex creases.
   geometry.setAttribute("normal", new Float32BufferAttribute(normals, 3));
   geometry.setIndex(faces);
+  geometry.computeBoundingBox();
+  geometry.computeBoundingSphere();
+  return geometry;
+}
+
+// Official Three.js Utah teapot (Martin Newell patch data). Keep analytic patch
+// normals and seams: welding/recomputing normals would erase intended joins.
+export const TEAPOT_SEGMENTS = 18;
+export function createUtahTeapot() {
+  const geometry = new TeapotGeometry(
+    1,
+    TEAPOT_SEGMENTS,
+    true,
+    true,
+    true,
+    true,
+    true,
+  );
+  geometry.center();
+  geometry.computeBoundingBox();
+  const bounds = geometry.boundingBox!;
+  const extent = Math.max(
+    bounds.max.x - bounds.min.x,
+    bounds.max.y - bounds.min.y,
+    bounds.max.z - bounds.min.z,
+  );
+  // Match the sphere's 1.7-unit maximum extent without changing camera/light.
+  geometry.scale(
+    (2 * SPHERE_RADIUS) / extent,
+    (2 * SPHERE_RADIUS) / extent,
+    (2 * SPHERE_RADIUS) / extent,
+  );
   geometry.computeBoundingBox();
   geometry.computeBoundingSphere();
   return geometry;

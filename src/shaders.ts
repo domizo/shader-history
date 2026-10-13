@@ -114,6 +114,9 @@ void environmentLight(vec3 N,vec3 V,out vec3 diffuse,out vec3 specular){
 }
 void main(){
  vec3 N=normalize(vNormal),V=normalize(cameraPosition-vWorldPosition),d,s;
+ #ifdef DOUBLE_SIDED
+ N *= gl_FrontFacing ? 1.0 : -1.0;
+ #endif
  evaluate(N,V,normalize(uLightDirection),d,s);d*=uLightIntensity;s*=uLightIntensity;
  if(uEnvironmentEnabled){vec3 ed,es;environmentLight(N,V,ed,es);d+=ed*uEnvironmentIntensity;s+=es*uEnvironmentIntensity;}
  vec3 result=uComponent==1?d:uComponent==2?s:d+s;

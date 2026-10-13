@@ -14,7 +14,7 @@ import {
   type V3,
 } from "../src/brdf";
 import { defaults, experiments } from "../src/state";
-import { fragment } from "../src/shaders";
+import { fragment, backgroundFragment } from "../src/shaders";
 const n: V3 = [0, 0, 1];
 describe("linear light and Fresnel", () => {
   it("converts sRGB once and agrees with Three.js r180", () => {
@@ -142,8 +142,15 @@ describe("educational invariants", () => {
     expect(dot(l, h)).toBeCloseTo(dot(v, h), 12);
   });
   it("all shader output uses one tone map and one output conversion", () => {
-    expect(fragment.match(/#include <tonemapping_fragment>/g)).toHaveLength(1);
-    expect(fragment.match(/#include <colorspace_fragment>/g)).toHaveLength(1);
+    for (const shader of [fragment, backgroundFragment]) {
+      expect(shader.match(/#include <tonemapping_fragment>/g)).toHaveLength(1);
+      expect(shader.match(/#include <colorspace_fragment>/g)).toHaveLength(1);
+      expect(shader.indexOf("#include <tonemapping_fragment>")).toBeLessThan(
+        shader.indexOf("#include <colorspace_fragment>"),
+      );
+    }
+    expect(fragment).toContain("#ifdef DOUBLE_SIDED");
+    expect(fragment).toContain("N *= gl_FrontFacing ? 1.0 : -1.0;");
     expect(fragment).toContain("diffuse*=(1.-F)*(1.-uMetalness)");
   });
 });

@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
 import { backgroundFragment, fragment, vertex } from "./shaders";
-import { createGeodesicSphere } from "./geometry";
+import { createGeodesicSphere, createUtahTeapot } from "./geometry";
 import { defaults, envIndex, models, type Settings, type Model } from "./state";
 
 export class LabRenderer {
@@ -83,6 +83,7 @@ export class LabRenderer {
     );
     this.geometries = {
       sphere: createGeodesicSphere(),
+      teapot: createUtahTeapot(),
       knot: new THREE.TorusKnotGeometry(0.52, 0.19, 160, 32),
       cube: new RoundedBoxGeometry(1.28, 1.28, 1.28, 6, 0.12),
     };
@@ -143,6 +144,12 @@ export class LabRenderer {
       Math.cos(az) * Math.cos(el),
     );
     this.materials.forEach((material, i) => {
+      const side =
+        settings.geometry === "teapot" ? THREE.DoubleSide : THREE.FrontSide;
+      if (material.side !== side) {
+        material.side = side;
+        material.needsUpdate = true;
+      }
       const u = material.uniforms;
       u.uBaseColor.value.set(settings.color);
       u.uRoughness.value = settings.roughness;
@@ -290,6 +297,9 @@ export class LabRenderer {
     this.host.dataset.geometry = this.settings.geometry;
     this.host.dataset.mode = this.settings.mode;
     this.host.dataset.selectedModel = this.settings.model;
+    this.host.dataset.color = this.settings.color;
+    this.host.dataset.toneMapping = this.settings.toneMapping ? "aces" : "none";
+    this.host.dataset.outputColorSpace = this.renderer.outputColorSpace;
   }
   download() {
     this.dirty = true;
