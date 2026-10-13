@@ -181,6 +181,17 @@ test("Lambert environment irradiance on a fixed flat face is camera invariant", 
   await afterChange(page, () =>
     page.getByLabel("Shape", { exact: true }).selectOption("cube"),
   );
+  // Keep this pre-existing invariance fixture independent of the UI default color.
+  await afterChange(page, () =>
+    page.getByLabel("Base color", { exact: true }).evaluate((el) => {
+      Object.getOwnPropertyDescriptor(
+        HTMLInputElement.prototype,
+        "value",
+      )!.set!.call(el, "#ce9458");
+      el.dispatchEvent(new Event("input", { bubbles: true }));
+      el.dispatchEvent(new Event("change", { bubbles: true }));
+    }),
+  );
   await range(page, "Intensity", 0);
   for (const environment of ["studio", "sky", "sunset"]) {
     await afterChange(page, () =>
