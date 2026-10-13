@@ -1,0 +1,13 @@
+# Primary references
+
+References reviewed 2026-10-13. Dates identify selected publications, not an exhaustive history or a linear replacement sequence.
+
+- Johann Heinrich Lambert, _Photometria_ (1760). [Digitized original, ETH-Bibliothek / e-rara](https://www.e-rara.ch/zut/content/titleinfo/2814923). Historical anchor for photometry and ideal diffuse reflection; no claim that Lambert invented computer shaders
+- Bui Tuong Phong, _Illumination for Computer Generated Pictures_, CACM 18(6), 311–317 (1975). [Original paper hosted by Northwestern](https://users.cs.northwestern.edu/~ago820/cs395/Papers/Phong_1975.pdf). Distinguish the paper’s normal interpolation from its reflection rule; the lab’s BRDF-style implementation is disclosed as a later teaching convention
+- James F. Blinn, _Models of Light Reflection for Computer Synthesized Pictures_, SIGGRAPH 1977, 192–198. [Author’s publication list and publisher links](https://www.jimblinn.com/publications/). Half-vector/microfacet context; the familiar cosine-power Blinn–Phong approximation is not the entirety of the original paper
+- Robert L. Cook and Kenneth E. Torrance, _A Reflectance Model for Computer Graphics_, TOG 1(1), 7–24 (1982). [Original paper hosted by Cornell](https://www.graphics.cornell.edu/~westin/consortium-home/cook-tog.pdf). Microfacet reflectance; the modern demo does not label its GGX distribution as the original 1982 distribution
+- Bruce Walter, Stephen R. Marschner, Hongsong Li, Kenneth E. Torrance, _Microfacet Models for Refraction through Rough Surfaces_ (2007). [Author-hosted paper at Cornell](https://www.cs.cornell.edu/~srm/publications/EGSR07-btdf.pdf). The GGX name/treatment is the 2007 milestone; the distribution is also known as Trowbridge–Reitz, with a 1975 antecedent noted by Burley. GGX distribution, microfacet theory, hemisphere constraints, and sampling/Jacobian background. The lab implements reflection only
+- Brent Burley, _Physically-Based Shading at Disney_, SIGGRAPH course notes (2012). [Disney-hosted original notes](https://media.disneyanimation.com/uploads/production/publication_asset/48/asset/s2012_pbs_disney_brdf_notes_v3.pdf). Practical artist-oriented parameters; included in history, not claimed as the full implemented shader
+- [Three.js official color-management documentation](https://threejs.org/manual/pages/color-management.html). Linear working color, sRGB input/output, and the custom ShaderMaterial output conversion requirement. Runtime pinned to r180 and checked against installed source
+
+Research PDFs, third-party figures, and photographs are not redistributed. The Guide uses original paraphrases and newly constructed mathematical diagrams.
