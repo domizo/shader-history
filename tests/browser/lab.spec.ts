@@ -131,20 +131,42 @@ test("real WebGL, shared parameter changes, and independent backgrounds", async 
     .getByLabel("Reflection model", { exact: true })
     .selectOption("pbr");
   await page.getByLabel("Shape", { exact: true }).selectOption("knot");
+  await expect(page.getByTestId("render-host")).toHaveAttribute(
+    "data-mode",
+    "single",
+  );
+  await expect(page.getByTestId("render-host")).toHaveAttribute(
+    "data-geometry",
+    "knot",
+  );
+  await expect(page.getByTestId("render-host")).toHaveAttribute(
+    "data-component",
+    "combined",
+  );
+  await expect(page.locator("[data-model]")).toHaveCount(1);
+  await pixels(page); // Synchronize the submitted WebGL work before the camera change.
+  const cameraFrame = Number(
+    await page.getByTestId("render-host").getAttribute("data-frames"),
+  );
   await page.getByTestId("render-host").focus();
   await page.keyboard.press("ArrowLeft");
-  await page.waitForTimeout(150);
-  await page.screenshot({
-    path: info.outputPath("single-metal-knot.png"),
-    fullPage: true,
-  });
+  await expect
+    .poll(async () =>
+      Number(await page.getByTestId("render-host").getAttribute("data-frames")),
+    )
+    .toBeGreaterThan(cameraFrame);
+  await pixels(page);
   const download = page.waitForEvent("download");
   await page
     .getByRole("button", { name: "Save render PNG", exact: true })
     .click();
-  expect((await download).suggestedFilename()).toBe(
-    "shader-history-render.png",
-  );
+  const renderedPng = await download;
+  expect(renderedPng.suggestedFilename()).toBe("shader-history-render.png");
+  await renderedPng.saveAs(info.outputPath("single-metal-knot-render.png"));
+  await page.screenshot({
+    path: info.outputPath("single-metal-knot.png"),
+    fullPage: true,
+  });
   expect(errors).toEqual([]);
 });
 test("guide, Japanese, repeated tab switches, and phone layout", async ({

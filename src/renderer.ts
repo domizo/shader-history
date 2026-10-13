@@ -287,6 +287,8 @@ export class LabRenderer {
       this.settings.environmentEnabled,
     );
     this.host.dataset.geometry = this.settings.geometry;
+    this.host.dataset.mode = this.settings.mode;
+    this.host.dataset.selectedModel = this.settings.model;
   }
   download() {
     this.dirty = true;
