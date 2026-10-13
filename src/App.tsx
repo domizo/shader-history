@@ -1,4 +1,10 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import Guide from "./Guide";
 import { LabRenderer } from "./renderer";
 import {
@@ -152,7 +158,7 @@ export default function App() {
       /* Storage is optional. */
     }
   }, [lang]);
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (page !== "lab" || !host.current) return;
     try {
       lab.current = new LabRenderer(
@@ -171,7 +177,7 @@ export default function App() {
       lab.current = null;
     };
   }, [page]);
-  useEffect(() => {
+  useLayoutEffect(() => {
     lab.current?.update(settings);
   }, [settings, page]);
   const tryModel = (model: Model) => {

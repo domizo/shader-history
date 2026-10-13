@@ -20,6 +20,7 @@ export class LabRenderer {
   private previous = 0;
   private rotation = 0;
   private frames = 0;
+  private fence: WebGLSync | null = null;
   private resizeObserver: ResizeObserver;
   constructor(
     private host: HTMLElement,
@@ -226,8 +227,22 @@ export class LabRenderer {
       this.dirty = true;
     } else this.rotation = 0;
     if (this.dirty) {
+      const gl = this.renderer.getContext() as WebGL2RenderingContext;
+      // Keep at most one frame in flight, especially on software/mobile GPUs.
+      // New control values coalesce while the previous frame finishes.
+      if (this.fence) {
+        const status = gl.clientWaitSync(this.fence, 0, 0);
+        if (status === gl.TIMEOUT_EXPIRED) {
+          this.raf = requestAnimationFrame(this.loop);
+          return;
+        }
+        gl.deleteSync(this.fence);
+        this.fence = null;
+      }
       this.render();
       this.dirty = false;
+      this.fence = gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE, 0);
+      gl.flush();
     }
     this.raf = requestAnimationFrame(this.loop);
   };
@@ -265,6 +280,13 @@ export class LabRenderer {
     this.frames++;
     this.host.dataset.frames = String(this.frames);
     this.host.dataset.ready = "true";
+    this.host.dataset.component = this.settings.component;
+    this.host.dataset.metalness = String(this.settings.metalness);
+    this.host.dataset.background = this.settings.background;
+    this.host.dataset.environmentEnabled = String(
+      this.settings.environmentEnabled,
+    );
+    this.host.dataset.geometry = this.settings.geometry;
   }
   download() {
     this.dirty = true;
@@ -277,6 +299,11 @@ export class LabRenderer {
   dispose() {
     this.disposed = true;
     cancelAnimationFrame(this.raf);
+    if (this.fence)
+      (this.renderer.getContext() as WebGL2RenderingContext).deleteSync(
+        this.fence,
+      );
+    this.fence = null;
     this.controls.dispose();
     this.resizeObserver.disconnect();
     this.renderer.domElement.removeEventListener(

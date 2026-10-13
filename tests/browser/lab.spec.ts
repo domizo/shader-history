@@ -93,14 +93,24 @@ test("real WebGL, shared parameter changes, and independent backgrounds", async 
   expect((await pixels(page)).pbr).not.toEqual(initial.pbr);
   await page.getByRole("button", { name: "Move light", exact: true }).click();
   const a = await page.getByTestId("render-host").getAttribute("data-frames");
-  await page.waitForTimeout(500);
-  const b = await page.getByTestId("render-host").getAttribute("data-frames");
-  expect(Number(b)).toBeGreaterThan(Number(a));
+  await expect
+    .poll(async () =>
+      Number(await page.getByTestId("render-host").getAttribute("data-frames")),
+    )
+    .toBeGreaterThan(Number(a));
   await page.getByRole("button", { name: "Pause light", exact: true }).click();
   await page.getByRole("button", { name: "Reset all", exact: true }).click();
   await page.getByRole("button", { name: "Metal", exact: true }).click();
   await page.getByRole("button", { name: "Diffuse", exact: true }).click();
   await page.waitForTimeout(150);
+  await expect(page.getByTestId("render-host")).toHaveAttribute(
+    "data-component",
+    "diffuse",
+  );
+  await expect(page.getByTestId("render-host")).toHaveAttribute(
+    "data-metalness",
+    "1",
+  );
   const diffuse = await pixels(page);
   expect(diffuse.pbr.every((v) => v === 0)).toBe(true);
   expect(diffuse.lambert.reduce((a, b) => a + b, 0)).toBeGreaterThan(60);
@@ -110,6 +120,10 @@ test("real WebGL, shared parameter changes, and independent backgrounds", async 
   });
   await page.getByRole("button", { name: "Specular", exact: true }).click();
   await page.waitForTimeout(150);
+  await expect(page.getByTestId("render-host")).toHaveAttribute(
+    "data-component",
+    "specular",
+  );
   expect((await pixels(page)).lambert.every((v) => v === 0)).toBe(true);
   await page.getByRole("button", { name: "Combined", exact: true }).click();
   await page.getByRole("button", { name: "Single", exact: true }).click();
