@@ -4,11 +4,13 @@ Checked 13 October 2026. This is an educational renderer; the checks below estab
 
 ## Automated checks
 
-The production-preview Chromium run at [3403d53d](https://github.com/domizo/shader-history/actions/runs/38348949732) passed:
+The [verification workflow](https://github.com/domizo/shader-history/actions/workflows/verify.yml) lists runs for the latest branch, including documentation-only follow-ups. The exact application capture run is recorded below.
+
+The production-preview Chromium run at [cac5e299](https://github.com/domizo/shader-history/actions/runs/38365752746) passed:
 
 - Clean `npm ci`, strict TypeScript checks, formatting, and Vite production build
-- 17 numerical/reference tests: sRGB conversion, Fresnel bounds, GGX projected normalization, Smith bounds, reciprocity, supported roughness/grazing finiteness, hemisphere rejection, normal-view metal specular energy, Lambert energy, classic lobe width, half-vector geometry, and shared output conversion
-- Two browser scenarios using real WebGL2/SwiftShader, not generated material images
+- 26 numerical/reference tests: sRGB conversion, Fresnel bounds, GGX projected normalization, Smith bounds, reciprocity, supported roughness/grazing finiteness, hemisphere rejection, normal-view metal specular energy, Lambert energy, classic lobe width, half-vector geometry, and shared output conversion
+- Four browser scenarios using real WebGL2/SwiftShader, not generated material images
 - Nonblank four-model rendering and visible response to roughness and moving light
 - Unlinked background changes leave sampled object pixels identical; enabling environment illumination changes them
 - Pure-metal PBR diffuse is black; Lambert specular is black
@@ -17,7 +19,20 @@ The production-preview Chromium run at [3403d53d](https://github.com/domizo/shad
 
 Shader pixel checks synchronize submitted GPU work. State changes, an updated DOM, and a fixed delay alone are insufficient evidence that an asynchronous WebGL frame has completed. Screenshot capture waits for the tested rendered state; the phone capture additionally checks all four objects after resizing.
 
-The packaged deployment's 18 built files were compared byte-for-byte with the successful CI build artifact. Browser artifacts include desktop comparison, diffuse isolation, single metal knot, exported knot PNG, both Guide languages, and a 390-pixel-wide Japanese layout. CI artifacts are retained for 14 days; the workflow reproduces them.
+The packaged deployment's 19 built files were compared byte-for-byte with the successful CI build artifact. Browser artifacts include desktop comparison, diffuse isolation, single metal knot, exported knot PNG, both Guide languages, and a 390-pixel-wide Japanese layout. Selected actual screenshots are preserved in [docs/images](images/README.md), with source commits, run links, original artifact paths, and SHA-256 hashes. The remaining CI artifacts are retained for 14 days; the workflow reproduces them.
+
+## Sphere and sampling-frame regression
+
+- The sphere now has 10,242 shared vertices and 20,480 outward-wound triangles, with all edges shared by two faces and Euler characteristic 2
+- Exactly twelve vertices have valence 5; all others have valence 6. The old latitude/longitude mesh had two valence-80 poles
+- Maximum/minimum triangle area improved from about 15.3016 to 1.3001. The new triangles are roughly uniform, not exactly equal-area
+- Radial normals and sphere radii are verified; both old and new meshes already used smooth radial normals. No flat-normal defect is claimed
+- World-fixed ±Z hemisphere sampling charts remove the old abrupt frame switch and front-center frame winding. Both active denominators stay at least 0.9; the shader's BRDF equations and PDF weights are unchanged
+- Unit tests cover topology, winding, triangle shape, radius, unit normals, frame continuity, and tangent alignment near both poles
+- A browser regression views the same flat Lambert surface under studio, sky, and sunset environment lighting while orbiting the camera. Sampled output remains within one displayed RGB level; independent fixed-normal CPU sweeps also found zero diffuse variation
+- Controlled before/after WebGL captures use the same metal preset, roughness, camera, environment, rotation, exposure, and output pipeline. Cases include roughness 0.08 and 0.35, environment rotation, polar and oblique views, direct-only polar light, and a 390-pixel viewport
+
+The chart fix targets artificial seams and sample-frame winding. It does not guarantee a more accurate integral at every pixel: finite deterministic sampling error remains, especially with narrow bright sources. The overlap may evaluate two charts per lobe (up to 48 diffuse and 96 specular directions), and actual performance is hardware-dependent.
 
 ## Mathematical and historical review
 
@@ -47,6 +62,6 @@ Intentional adjustments from the concept:
 
 ## Verification limits
 
-Automated browser checks use Chromium with a software WebGL2 renderer. They do not certify every physical GPU, browser, or phone; WebGL2 is required. The original cloud workspace could not launch a local browser because its socket policy blocked Chromium, so the repository's production-preview CI supplied the actual rendering evidence. No security setting was changed for that fallback.
+Automated browser checks serve the production build in Chromium with the SwiftShader WebGL2 renderer. They do not certify physical mobile GPUs, Safari, every browser/driver combination, or real-device frame rates. WebGL2 is required. The checks establish functional and visual behavior in the recorded CI environment.
 
 Finite environment samples can produce structured variance. Single scattering, illustrative metal colors, approximate Fresnel/diffuse coupling, and omitted production effects are documented in [IMPLEMENTATION.md](IMPLEMENTATION.md) and in both Guide languages. The comparisons keep geometry, camera, direct/environment illumination, and the linear-light display pipeline shared; material parameters with different mathematical meanings are not claimed to be exactly equivalent.

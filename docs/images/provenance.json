@@ -1,0 +1,43 @@
+{
+  "capture_date_utc": "2026-10-13",
+  "browser": "Chromium / SwiftShader WebGL2, production Vite preview",
+  "current_run": "https://github.com/domizo/shader-history/actions/runs/38365752746",
+  "baseline_run": "https://github.com/domizo/shader-history/actions/runs/38362777552",
+  "images": [
+    {
+      "file": "compare.png",
+      "source_artifact_path": "lab-real-WebGL-shared-para-f400b-and-independent-backgrounds/desktop-compare-en.png",
+      "sha256": "e386bc7d959048666f5065c5dd58759fee96537a0d8214fdcea22a99f393ff09",
+      "bytes": 207338,
+      "source_commit": "cac5e299b9e537282eafe577d651cd113201d786"
+    },
+    {
+      "file": "single.png",
+      "source_artifact_path": "sphere-sphere-reflections--e1848--environment-and-polar-view/sphere-studio-rough.png",
+      "sha256": "739193195a74eb8905da93c65118ae3e24bedcf8afbd4be0182af67bae9aba4a",
+      "bytes": 76753,
+      "source_commit": "cac5e299b9e537282eafe577d651cd113201d786"
+    },
+    {
+      "file": "guide.png",
+      "source_artifact_path": "lab-guide-Japanese-repeated-tab-switches-and-phone-layout/guide-preview.png",
+      "sha256": "586f11f8a174b08c4ecbe732808ae72d61795932512983d071d311421fc98da4",
+      "bytes": 84165,
+      "source_commit": "cac5e299b9e537282eafe577d651cd113201d786"
+    },
+    {
+      "file": "mobile.png",
+      "source_artifact_path": "lab-guide-Japanese-repeated-tab-switches-and-phone-layout/mobile-ja.png",
+      "sha256": "669d08575cc6bd44f674bdaa3a2372a6120b42f24dce7de3baa69972f5353773",
+      "bytes": 202087,
+      "source_commit": "cac5e299b9e537282eafe577d651cd113201d786"
+    },
+    {
+      "file": "sphere-before.png",
+      "source_artifact_path": "sphere-sphere-reflections--e1848--environment-and-polar-view/sphere-studio-rough.png",
+      "sha256": "b3e5d57817497ff7a813f8398e96805415e3be2c3b035ac8924481b6c0f6c48b",
+      "bytes": 79921,
+      "source_commit": "823855d570a462c5ea6bcad04ee0020e5c6fc2f4"
+    }
+  ]
+}
