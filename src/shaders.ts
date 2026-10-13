@@ -59,8 +59,13 @@ void evaluate(vec3 N,vec3 V,vec3 L,out vec3 diffuse,out vec3 specular){
  diffuse*=nl;specular*=nl;
 }
 // World-fixed overlapping charts. Blend integrals, never the tangent vectors.
-mat3 worldBasis(vec3 n,vec3 up){vec3 t=normalize(cross(up,n));return mat3(t,cross(n,t),n);}
-float chartBlend(vec3 axis){return smoothstep(.995,.999,abs(axis.z));}
+mat3 worldBasis(vec3 n,float hemisphere){
+ vec3 anchor=vec3(0.,0.,hemisphere);
+ // Transport world +X from a fixed pole; active denominator is always >= .9.
+ vec3 t=normalize(vec3(1.,0.,0.)-n.x*(anchor+n)/(1.+hemisphere*n.z));
+ return mat3(t,cross(n,t),n);
+}
+float chartBlend(vec3 axis){return smoothstep(-.1,.1,axis.z);}
 vec2 sequence(int i,int count){return vec2((float(i)+.5)/float(count),fract(float(i)*.618033988749895));}
 vec3 diffuseEstimate(mat3 frame,vec3 V,vec3 f0){
  vec3 sum=vec3(0.);
@@ -99,13 +104,13 @@ void environmentLight(vec3 N,vec3 V,out vec3 diffuse,out vec3 specular){
  float blend=chartBlend(N);
  // Each branch is evaluated only where its frame is nonsingular.
  // Lambert/classic diffuse samples depend on N and environment, never on V.
- if(blend<1.)diffuse+=(1.-blend)*diffuseEstimate(worldBasis(N,vec3(0.,0.,1.)),V,f0);
- if(blend>0.)diffuse+=blend*diffuseEstimate(worldBasis(N,vec3(1.,0.,0.)),V,f0);
+ if(blend<1.)diffuse+=(1.-blend)*diffuseEstimate(worldBasis(N,-1.),V,f0);
+ if(blend>0.)diffuse+=blend*diffuseEstimate(worldBasis(N,1.),V,f0);
  if(uModel==0)return;
  vec3 axis=uModel==1?reflect(-V,N):N;
  blend=chartBlend(axis);
- if(blend<1.)specular+=(1.-blend)*specularEstimate(worldBasis(axis,vec3(0.,0.,1.)),N,V,f0);
- if(blend>0.)specular+=blend*specularEstimate(worldBasis(axis,vec3(1.,0.,0.)),N,V,f0);
+ if(blend<1.)specular+=(1.-blend)*specularEstimate(worldBasis(axis,-1.),N,V,f0);
+ if(blend>0.)specular+=blend*specularEstimate(worldBasis(axis,1.),N,V,f0);
 }
 void main(){
  vec3 N=normalize(vNormal),V=normalize(cameraPosition-vWorldPosition),d,s;

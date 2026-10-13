@@ -60,17 +60,18 @@ export function classicLobe(
   return scale * Math.pow(Math.max(0, cosine), n);
 }
 
-/** CPU reference for the shader's world-fixed overlapping sampling charts. */
+/** CPU reference for the shader's two world-fixed hemisphere charts. */
 export function environmentFrames(n: V3) {
-  const x = Math.max(0, Math.min(1, (Math.abs(n[2]) - 0.995) / 0.004));
+  const x = Math.max(0, Math.min(1, (n[2] + 0.1) / 0.2));
   const blend = x * x * (3 - 2 * x);
   const charts: { weight: number; tangent: V3; bitangent: V3 }[] = [];
-  for (const [weight, rawTangent] of [
-    [1 - blend, [-n[1], n[0], 0]],
-    [blend, [0, -n[2], n[1]]],
-  ] as [number, V3][]) {
+  for (const [weight, hemisphere] of [
+    [1 - blend, -1],
+    [blend, 1],
+  ]) {
     if (weight <= 0) continue;
-    const t = normalize(rawTangent);
+    const a = n[0] / (1 + hemisphere * n[2]);
+    const t = normalize([1 - a * n[0], -a * n[1], -a * (hemisphere + n[2])]);
     charts.push({
       weight,
       tangent: t,

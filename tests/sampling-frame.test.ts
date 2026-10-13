@@ -29,7 +29,7 @@ const irradiance = (n: V3) => {
 };
 describe("world-fixed overlapping environment charts", () => {
   it("is finite and right-handed over the entire sphere, including all poles", () => {
-    for (const z of [-1, -0.999, -0.997, -0.995, 0, 0.995, 0.997, 0.999, 1])
+    for (const z of [-1, -0.999, -0.1, -0.05, 0, 0.05, 0.1, 0.999, 1])
       for (let i = 0; i < 72; i++) {
         const phi = (i * Math.PI) / 36;
         const n: V3 = [
@@ -50,8 +50,8 @@ describe("world-fixed overlapping environment charts", () => {
         }
       }
   });
-  it("blends integral values continuously across both cap boundaries", () => {
-    for (const z of [-0.999, -0.995, 0.995, 0.999])
+  it("blends integral values continuously across both hemisphere-chart boundaries", () => {
+    for (const z of [-0.1, 0.1])
       for (let i = 0; i < 72; i++) {
         const phi = (i * Math.PI) / 36;
         const pair = [-1e-8, 1e-8].map((delta) => {
@@ -65,6 +65,20 @@ describe("world-fixed overlapping environment charts", () => {
         expect(
           Math.max(...pair[0].map((x, j) => Math.abs(x - pair[1][j]))),
         ).toBeLessThan(0.00001);
+      }
+  });
+  it("does not wind its sample tangent around either pole", () => {
+    for (const sign of [-1, 1])
+      for (let i = 0; i < 72; i++) {
+        const phi = (i * Math.PI) / 36;
+        const n: V3 = [
+          0.05 * Math.cos(phi),
+          0.05 * Math.sin(phi),
+          sign * Math.sqrt(1 - 0.05 ** 2),
+        ];
+        const frames = environmentFrames(n);
+        expect(frames).toHaveLength(1);
+        expect(dot(frames[0].tangent, [1, 0, 0])).toBeGreaterThan(0.99);
       }
   });
   it("keeps diffuse charts world-fixed and preserves the per-chart sample counts", () => {
