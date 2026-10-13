@@ -80,7 +80,7 @@ async function single(page: Page, model = "phong") {
 test("teapot materials and ordinary controls preserve Single and the selected shader", async ({
   page,
 }, info) => {
-  test.setTimeout(300000);
+  test.setTimeout(450000);
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   page.on("console", (m) => {

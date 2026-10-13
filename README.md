@@ -47,7 +47,9 @@ Drag to orbit, scroll to zoom, or focus the viewer and use the arrow keys. Light
 
 These are actual Chromium/WebGL2 captures, not generated concept images. Their source commit and CI provenance are recorded in [the screenshot record](docs/images/README.md).
 
-![Single-model material inspection](docs/images/single.png)
+![Blue Utah teapot in Single mode](docs/images/teapot.png)
+
+![Metal Utah teapot](docs/images/teapot-metal.png)
 
 ![English learning guide](docs/images/guide.png)
 

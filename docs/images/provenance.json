@@ -1,43 +1,64 @@
 {
   "capture_date_utc": "2026-10-13",
   "browser": "Chromium / SwiftShader WebGL2, production Vite preview",
-  "current_run": "https://github.com/domizo/shader-history/actions/runs/38365752746",
+  "current_run": "https://github.com/domizo/shader-history/actions/runs/38373191661",
   "baseline_run": "https://github.com/domizo/shader-history/actions/runs/38362777552",
   "images": [
-    {
-      "file": "compare.png",
-      "source_artifact_path": "lab-real-WebGL-shared-para-f400b-and-independent-backgrounds/desktop-compare-en.png",
-      "sha256": "e386bc7d959048666f5065c5dd58759fee96537a0d8214fdcea22a99f393ff09",
-      "bytes": 207338,
-      "source_commit": "cac5e299b9e537282eafe577d651cd113201d786"
-    },
     {
       "file": "single.png",
       "source_artifact_path": "sphere-sphere-reflections--e1848--environment-and-polar-view/sphere-studio-rough.png",
       "sha256": "739193195a74eb8905da93c65118ae3e24bedcf8afbd4be0182af67bae9aba4a",
       "bytes": 76753,
-      "source_commit": "cac5e299b9e537282eafe577d651cd113201d786"
+      "source_commit": "cac5e299b9e537282eafe577d651cd113201d786",
+      "source_run": "https://github.com/domizo/shader-history/actions/runs/38365752746"
     },
     {
       "file": "guide.png",
       "source_artifact_path": "lab-guide-Japanese-repeated-tab-switches-and-phone-layout/guide-preview.png",
       "sha256": "586f11f8a174b08c4ecbe732808ae72d61795932512983d071d311421fc98da4",
       "bytes": 84165,
-      "source_commit": "cac5e299b9e537282eafe577d651cd113201d786"
-    },
-    {
-      "file": "mobile.png",
-      "source_artifact_path": "lab-guide-Japanese-repeated-tab-switches-and-phone-layout/mobile-ja.png",
-      "sha256": "669d08575cc6bd44f674bdaa3a2372a6120b42f24dce7de3baa69972f5353773",
-      "bytes": 202087,
-      "source_commit": "cac5e299b9e537282eafe577d651cd113201d786"
+      "source_commit": "cac5e299b9e537282eafe577d651cd113201d786",
+      "source_run": "https://github.com/domizo/shader-history/actions/runs/38365752746"
     },
     {
       "file": "sphere-before.png",
       "source_artifact_path": "sphere-sphere-reflections--e1848--environment-and-polar-view/sphere-studio-rough.png",
       "sha256": "b3e5d57817497ff7a813f8398e96805415e3be2c3b035ac8924481b6c0f6c48b",
       "bytes": 79921,
-      "source_commit": "823855d570a462c5ea6bcad04ee0020e5c6fc2f4"
+      "source_commit": "823855d570a462c5ea6bcad04ee0020e5c6fc2f4",
+      "source_run": "https://github.com/domizo/shader-history/actions/runs/38362777552"
+    },
+    {
+      "file": "compare.png",
+      "source_artifact_path": "lab-real-WebGL-shared-para-f400b-and-independent-backgrounds/desktop-compare-en.png",
+      "sha256": "c9d055459dcb3c08f12c32e41cb74440bb7f4ceeeb00f72d38a79c1470a04cf0",
+      "bytes": 198962,
+      "source_commit": "03440fec0057753b6fe9537c1b21df767acb4211",
+      "source_run": "https://github.com/domizo/shader-history/actions/runs/38373191661"
+    },
+    {
+      "file": "mobile.png",
+      "source_artifact_path": "teapot-teapot-materials-an-858ab-gle-and-the-selected-shader/teapot-mobile-ja.png",
+      "sha256": "573899dea23f92a0a4a486a445621fe70833522ec12e15c5ac6eb07b2b525b66",
+      "bytes": 206432,
+      "source_commit": "03440fec0057753b6fe9537c1b21df767acb4211",
+      "source_run": "https://github.com/domizo/shader-history/actions/runs/38373191661"
+    },
+    {
+      "file": "teapot.png",
+      "source_artifact_path": "teapot-teapot-materials-an-858ab-gle-and-the-selected-shader/teapot-blue-single.png",
+      "sha256": "e257cf3d12960b448ac8556e2379eef18be675f9ab9843d1c42399c1e31e2460",
+      "bytes": 144111,
+      "source_commit": "03440fec0057753b6fe9537c1b21df767acb4211",
+      "source_run": "https://github.com/domizo/shader-history/actions/runs/38373191661"
+    },
+    {
+      "file": "teapot-metal.png",
+      "source_artifact_path": "teapot-teapot-materials-an-858ab-gle-and-the-selected-shader/teapot-metal.png",
+      "sha256": "d117eccf8472de5e715f339870c381f78a4412908c77ce3942b8cc0207c50e89",
+      "bytes": 52063,
+      "source_commit": "03440fec0057753b6fe9537c1b21df767acb4211",
+      "source_run": "https://github.com/domizo/shader-history/actions/runs/38373191661"
     }
   ]
 }

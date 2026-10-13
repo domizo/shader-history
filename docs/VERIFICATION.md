@@ -6,11 +6,11 @@ Checked 13 October 2026. This is an educational renderer; the checks below estab
 
 The [verification workflow](https://github.com/domizo/shader-history/actions/workflows/verify.yml) lists runs for the latest branch, including documentation-only follow-ups. The exact application capture run is recorded below.
 
-The production-preview Chromium run at [cac5e299](https://github.com/domizo/shader-history/actions/runs/38365752746) passed:
+The production-preview Chromium run at [03440fec](https://github.com/domizo/shader-history/actions/runs/38373191661) passed:
 
 - Clean `npm ci`, strict TypeScript checks, formatting, and Vite production build
-- 26 numerical/reference tests: sRGB conversion, Fresnel bounds, GGX projected normalization, Smith bounds, reciprocity, supported roughness/grazing finiteness, hemisphere rejection, normal-view metal specular energy, Lambert energy, classic lobe width, half-vector geometry, and shared output conversion
-- Four browser scenarios using real WebGL2/SwiftShader, not generated material images
+- 38 numerical/reference tests, including state-preserving presets/reset, requested-blue conversion, and teapot geometry, plus: sRGB conversion, Fresnel bounds, GGX projected normalization, Smith bounds, reciprocity, supported roughness/grazing finiteness, hemisphere rejection, normal-view metal specular energy, Lambert energy, classic lobe width, half-vector geometry, and shared output conversion
+- Six browser scenarios using real WebGL2/SwiftShader, not generated material images
 - Nonblank four-model rendering and visible response to roughness and moving light
 - Unlinked background changes leave sampled object pixels identical; enabling environment illumination changes them
 - Pure-metal PBR diffuse is black; Lambert specular is black
@@ -20,6 +20,18 @@ The production-preview Chromium run at [cac5e299](https://github.com/domizo/shad
 Shader pixel checks synchronize submitted GPU work. State changes, an updated DOM, and a fixed delay alone are insufficient evidence that an asynchronous WebGL frame has completed. Screenshot capture waits for the tested rendered state; the phone capture additionally checks all four objects after resizing.
 
 The packaged deployment's 19 built files were compared byte-for-byte with the successful CI build artifact. Browser artifacts include desktop comparison, diffuse isolation, single metal knot, exported knot PNG, both Guide languages, and a 390-pixel-wide Japanese layout. Selected actual screenshots are preserved in [docs/images](images/README.md), with source commits, run links, original artifact paths, and SHA-256 hashes. The remaining CI artifacts are retained for 14 days; the workflow reproduces them.
+
+## Blue, Utah teapot, and view-state regression
+
+- Initial, Plastic, Rough, and Reset settings base color is the requested sRGB `#0061ff`; the illustrative metal remains gold
+- The pinned official teapot has 11,552 vertices / 20,592 triangles, finite unit analytic patch normals, positive triangle areas, matching winding, and centered maximum extent 1.7. Teapot-only double-sided shading flips the custom fragment normal on exposed backs
+- Actual captures cover blue Plastic Single, metallic low roughness, spout/lid from above, underside, synchronized four-model comparison, and Japanese 390-pixel layout
+- Repeated Plastic/Metal/Rough presets, all experiments, shape, environment/background linking, lighting, components, exposure, tone mapping, camera controls, Guide/Lab navigation, language, and Reset settings preserve Single and the selected shader. Compare is changed explicitly
+- Material presets now modify material properties only; experiments and Reset settings also preserve shape and camera
+- A known flat Lambert face with environment off checks rendered RGB against the analytic direct-light response and one sRGB transfer at exposure −1, 0, and +1 (tolerance 1.5 display levels). ACES changes the rendered response while sRGB output and the input hex remain unchanged
+- Both surface and background shaders include one optional tone map before one output conversion. ACES remains the HDR-friendly default, with its role and approximation explained in both Guide languages
+
+The pre-existing Lambert camera-invariance fixture now supplies its original brown color explicitly, rather than inheriting the newly requested blue and its lower output under the sunset environment. Its brightness and one-level invariance assertions are unchanged. The slider helper also avoids awaiting a new frame for an unchanged value; these are test-fixture corrections, not renderer changes.
 
 ## Sphere and sampling-frame regression
 
