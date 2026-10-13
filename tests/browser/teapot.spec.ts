@@ -38,6 +38,13 @@ async function change(page: Page, action: () => Promise<unknown>) {
   expect((await pixels(page)).error).toBe(0);
 }
 async function range(page: Page, name: string, value: number) {
+  if (
+    (await page.getByRole("slider", { name, exact: true }).inputValue()) ===
+    String(value)
+  ) {
+    await pixels(page);
+    return;
+  }
   await change(page, () =>
     page.getByRole("slider", { name, exact: true }).evaluate((el, value) => {
       Object.getOwnPropertyDescriptor(
