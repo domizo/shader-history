@@ -206,7 +206,21 @@ test("guide, Japanese, repeated tab switches, and phone layout", async ({
   await expect(page.getByLabel("反射モデル")).toHaveValue("lambert");
   await page.getByRole("button", { name: "比較", exact: true }).click();
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.waitForTimeout(150);
+  await expect(page.getByTestId("render-host")).toHaveAttribute(
+    "data-mode",
+    "compare",
+  );
+  await expect
+    .poll(async () => {
+      const rendered = await pixels(page);
+      return (
+        Object.keys(rendered).length === 4 &&
+        Object.values(rendered).every(
+          (rgb) => rgb.reduce((a, b) => a + b, 0) > 60,
+        )
+      );
+    })
+    .toBe(true);
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,
