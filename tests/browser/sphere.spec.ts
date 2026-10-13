@@ -133,3 +133,80 @@ test("sphere reflections at low roughness, rotated environment, and polar view",
   await expect(page.locator("[data-model]")).toHaveCount(4);
   expect(errors).toEqual([]);
 });
+
+async function centerColor(page: Page) {
+  await completedPixels(page);
+  return page.evaluate(() => {
+    const canvas = document.querySelector("canvas")!;
+    const gl = canvas.getContext("webgl2")!;
+    const pixels = new Uint8Array(9 * 9 * 4);
+    gl.readPixels(
+      Math.floor(canvas.width / 2) - 4,
+      Math.floor(canvas.height / 2) - 4,
+      9,
+      9,
+      gl.RGBA,
+      gl.UNSIGNED_BYTE,
+      pixels,
+    );
+    const sum = [0, 0, 0];
+    for (let i = 0; i < pixels.length; i += 4)
+      for (let c = 0; c < 3; c++) sum[c] += pixels[i + c];
+    return sum.map((x) => x / 81);
+  });
+}
+
+test("Lambert environment irradiance on a fixed flat face is camera invariant", async ({
+  page,
+}) => {
+  test.setTimeout(180000);
+  const errors: string[] = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  await page.goto("/");
+  await page.getByRole("button", { name: "EN", exact: true }).click();
+  await expect(page.getByTestId("render-host")).toHaveAttribute(
+    "data-ready",
+    "true",
+  );
+  await completedPixels(page);
+  await afterChange(page, () =>
+    page.getByRole("button", { name: "Single", exact: true }).click(),
+  );
+  await afterChange(page, () =>
+    page
+      .getByLabel("Reflection model", { exact: true })
+      .selectOption("lambert"),
+  );
+  await afterChange(page, () =>
+    page.getByLabel("Shape", { exact: true }).selectOption("cube"),
+  );
+  await range(page, "Intensity", 0);
+  for (const environment of ["studio", "sky", "sunset"]) {
+    await afterChange(page, () =>
+      page
+        .getByLabel("Lighting environment", { exact: true })
+        .selectOption(environment),
+    );
+    await afterChange(page, () =>
+      page.getByRole("button", { name: "Reset view", exact: true }).click(),
+    );
+    const initial = await centerColor(page);
+    expect(initial.reduce((a, b) => a + b, 0)).toBeGreaterThan(60);
+    await page.getByTestId("render-host").focus();
+    // The central rays stay on the same flat front face, away from rounded edges.
+    for (const key of [
+      "ArrowLeft",
+      "ArrowLeft",
+      "ArrowLeft",
+      "ArrowLeft",
+      "ArrowDown",
+      "ArrowDown",
+    ]) {
+      await afterChange(page, () => page.keyboard.press(key));
+      const moved = await centerColor(page);
+      for (let c = 0; c < 3; c++)
+        expect(Math.abs(moved[c] - initial[c])).toBeLessThanOrEqual(1);
+    }
+  }
+  expect(errors).toEqual([]);
+});

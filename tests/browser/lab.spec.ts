@@ -177,6 +177,7 @@ test("guide, Japanese, repeated tab switches, and phone layout", async ({
   await expect(
     page.getByRole("heading", { name: "A history of better questions." }),
   ).toBeVisible();
+  await page.screenshot({ path: info.outputPath("guide-preview.png") });
   await page.screenshot({
     path: info.outputPath("guide-en.png"),
     fullPage: true,

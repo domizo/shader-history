@@ -32,10 +32,10 @@ The common `(1−F(V·H))` Lambert diffuse coupling is a practical approximation
 
 The studio, sky, and sunset environments are original analytical functions returning nonnegative linear radiance. Background uses the same function when explicitly selected, but has no causal effect on illumination unless the link option is enabled. Environment rotation rotates the directional field; it does not rotate the independent directional light.
 
-- Diffuse: 24 deterministic cosine-weighted samples, integral estimator f_d L_i π. The PBR Fresnel diffuse weight is evaluated per incoming direction
-- Phong specular: 48 samples of the cosine-power lobe about reflect(−V,N); PDF (n+1) cos^n/(2π)
-- Blinn specular: 48 half-vector samples, PDF_H = (n+2)(N·H)^(n+1)/(2π), converted to incident direction using PDF_L = PDF_H/(4 V·H)
-- GGX specular: 48 half-vector samples with PDF_H = D(H)(N·H), same reflection Jacobian. The resulting weight is F G (V·H)/[(N·V)(N·H)]
+- Diffuse: 24 deterministic cosine-weighted samples per chart, integral estimator f_d L_i π. The PBR Fresnel diffuse weight is evaluated per incoming direction
+- Phong specular: 48 samples per chart of the cosine-power lobe about reflect(−V,N); PDF (n+1) cos^n/(2π)
+- Blinn specular: 48 half-vector samples per chart, PDF_H = (n+2)(N·H)^(n+1)/(2π), converted to incident direction using PDF_L = PDF_H/(4 V·H)
+- GGX specular: 48 half-vector samples per chart with PDF_H = D(H)(N·H), same reflection Jacobian. The resulting weight is F G (V·H)/[(N·V)(N·H)]
 - Invalid hemisphere samples contribute zero; the estimator is divided by the original sample count, not just accepted samples
 
 Finite deterministic sampling can show structured variance/banding. It is a transparent educational integration, not PMREM, a measured HDR photograph, a production path tracer, or a claim of converged lighting. No texture stands in for the material computation.
@@ -47,3 +47,13 @@ No cast shadows, indirect interreflection, multiple-scattering compensation, ani
 ## Original visuals and privacy
 
 All shipped visuals are GPU output, procedural geometry, mathematical SVG diagrams, or CSS interface primitives. Design-concept images were used only as design references and are not shipped as evidence or runtime assets. Fonts and packages are locally bundled with complete notices. The language preference is stored locally; no user inputs are sent to a backend.
+
+## Sphere tessellation and reflection-frame continuity
+
+The visible sphere is an indexed midpoint-subdivided icosahedron, with five recursive levels: 10,242 unique vertices and 20,480 triangles. Each edge midpoint is reused by its neighboring faces. Positions are projected onto radius 0.85; normals are analytic unit radial directions. The geometry has no UV attribute or texture seam and is shared unchanged by all four materials. Its triangles are roughly uniform, not mathematically equal-area: measured maximum/minimum triangle area is about 1.3001, versus about 15.3016 for the previous 80×48 latitude/longitude sphere. Vertex valence is 5 at twelve vertices and 6 everywhere else, with no valence-80 poles.
+
+The old sphere already had smooth radial normals. Topology improves surface/silhouette approximation and sample-position accuracy; it does not by itself explain every reflection artifact. The environment integrator also previously switched its tangent frame abruptly at |axis.z| = 0.999. A finite sample pattern changes orientation at that boundary even though the ideal integral is rotation-invariant.
+
+The integrator now uses two world-fixed sampling charts. It smoothly blends their integral estimates across 0.995 < |axis.z| < 0.999, rather than switching frames abruptly or interpolating tangent vectors. The axis is N for diffuse, Blinn, and GGX, and R for Phong specular. Each chart is evaluated only where its basis is nonsingular. Smoothstep weights sum to one; both estimates use the original matching PDFs and BRDF weights. A diffuse chart uses 24 directions and a specular chart 48. Both charts are evaluated only in the narrow overlap, so a lobe uses at most twice its usual samples there. The overlap covers 0.4% of uniformly distributed axis directions, which is not a hardware performance guarantee.
+
+Lambert and classic diffuse samples remain independent of camera position. PBR diffuse retains the view dependence of its existing Fresnel weight, and specular retains its BRDF's view dependence. No camera-anchored sample frame is used. The BRDF equations, PDFs, procedural radiance, and color pipeline are unchanged. This removes the artificial frame switch, not finite-sample approximation error; visible patterns can still occur, especially for narrow bright sources.

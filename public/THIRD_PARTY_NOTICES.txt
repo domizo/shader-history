@@ -1,6 +1,6 @@
 # Third-party notices
 
-The original project is UNLICENSED. The following licenses apply only to the named bundled dependencies and font assets.
+The original project is MIT licensed, copyright (c) 2026 domizo. The full project license is in LICENSE (source) and LICENSE.txt (static distribution). The following licenses apply only to the named bundled dependencies and font assets.
 
 ## react 19.2.0
 

@@ -368,8 +368,8 @@ export default function Guide({
             </li>
             <li>
               {t(
-                "Original procedural studio, sky, and sunset fields supply linear radiance. Environment integration uses 24 cosine-weighted diffuse and 48 importance-sampled specular directions per pixel. This is a finite-sample educational approximation; banding or variance can appear. It is not a path tracer.",
-                "独自の Studio・Sky・Sunset 関数が線形の入射光を作ります。環境光は画素ごとに拡散24方向、鏡面48方向の重点サンプリングで積分します。有限サンプルの教育用近似なので、帯やばらつきが現れる場合があります。パストレーサーではありません。",
+                "Original procedural studio, sky, and sunset fields supply linear radiance. Environment integration uses 24 cosine-weighted diffuse and 48 importance-sampled specular directions per chart. Two world-fixed charts are blended only in a narrow overlap to avoid a frame seam. This is a finite-sample educational approximation; sampling patterns can remain. It is not a path tracer.",
+                "独自の Studio・Sky・Sunset 関数が線形の入射光を作ります。環境光は座標系ごとに拡散24方向、鏡面48方向の重点サンプリングで積分します。世界座標に固定した2つの座標系を狭い重複範囲で混ぜ、切り替えの境界を避けています。有限サンプルの教育用近似なので、サンプル模様が残る場合があります。パストレーサーではありません。",
               )}
             </li>
             <li>

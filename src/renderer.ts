@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
 import { backgroundFragment, fragment, vertex } from "./shaders";
+import { createGeodesicSphere } from "./geometry";
 import { defaults, envIndex, models, type Settings, type Model } from "./state";
 
 export class LabRenderer {
@@ -81,7 +82,7 @@ export class LabRenderer {
         }),
     );
     this.geometries = {
-      sphere: new THREE.SphereGeometry(0.85, 80, 48),
+      sphere: createGeodesicSphere(),
       knot: new THREE.TorusKnotGeometry(0.52, 0.19, 160, 32),
       cube: new RoundedBoxGeometry(1.28, 1.28, 1.28, 6, 0.12),
     };

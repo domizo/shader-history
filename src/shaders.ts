@@ -58,39 +58,54 @@ void evaluate(vec3 N,vec3 V,vec3 L,out vec3 diffuse,out vec3 specular){
  if(uModel==3){vec3 F=FSchlick(vh,F0());diffuse*=(1.-F)*(1.-uMetalness);specular=Dggx(nh)*G1(nl)*G1(nv)*F/max(4.*nl*nv,.000001);}
  diffuse*=nl;specular*=nl;
 }
-mat3 basis(vec3 n){vec3 up=abs(n.z)<.999?vec3(0.,0.,1.):vec3(1.,0.,0.);vec3 t=normalize(cross(up,n));return mat3(t,cross(n,t),n);}
+// World-fixed overlapping charts. Blend integrals, never the tangent vectors.
+mat3 worldBasis(vec3 n,vec3 up){vec3 t=normalize(cross(up,n));return mat3(t,cross(n,t),n);}
+float chartBlend(vec3 axis){return smoothstep(.995,.999,abs(axis.z));}
 vec2 sequence(int i,int count){return vec2((float(i)+.5)/float(count),fract(float(i)*.618033988749895));}
-void environmentLight(vec3 N,vec3 V,out vec3 diffuse,out vec3 specular){
- diffuse=vec3(0.);specular=vec3(0.);
- mat3 bn=basis(N);vec3 f0=F0();float nv=max(dot(N,V),.00001);
- // Deterministic cosine-weighted integration of the diffuse hemisphere.
+vec3 diffuseEstimate(mat3 frame,vec3 V,vec3 f0){
+ vec3 sum=vec3(0.);
  for(int i=0;i<24;i++){
   vec2 u=sequence(i,24);float phi=2.*PI*u.y;float r=sqrt(u.x);
-  vec3 L=bn*vec3(r*cos(phi),r*sin(phi),sqrt(1.-u.x));
+  vec3 L=frame*vec3(r*cos(phi),r*sin(phi),sqrt(1.-u.x));
   vec3 kd=uBaseColor;
   if(uModel==3)kd*=(1.-FSchlick(max(dot(V,normalize(V+L)),0.),f0))*(1.-uMetalness);
-  diffuse+=kd*envRadiance(L)/24.;
+  sum+=kd*envRadiance(L)/24.;
  }
- if(uModel==0)return;
- mat3 br=basis(reflect(-V,N));
- // Separate lobe importance sampling: no fake ambient term or reflected screenshot.
+ return sum;
+}
+vec3 specularEstimate(mat3 frame,vec3 N,vec3 V,vec3 f0){
+ vec3 sum=vec3(0.);float nv=max(dot(N,V),.00001);
  for(int i=0;i<48;i++){
   vec2 u=sequence(i,48);float phi=2.*PI*u.y;vec3 L;vec3 weight;
   if(uModel==1){
    float z=pow(1.-u.x,1./(uShininess+1.));float r=sqrt(max(0.,1.-z*z));
-   L=br*vec3(r*cos(phi),r*sin(phi),z);
+   L=frame*vec3(r*cos(phi),r*sin(phi),z);
    weight=vec3(uSpecular*classicScale()*2.*PI/(uShininess+1.)*max(dot(N,L),0.));
   }else{
    float a=max(uRoughness*uRoughness,.0025);
    float z=uModel==3?sqrt((1.-u.x)/(1.+(a*a-1.)*u.x)):pow(1.-u.x,1./(uShininess+2.));
-   float r=sqrt(max(0.,1.-z*z));vec3 H=bn*vec3(r*cos(phi),r*sin(phi),z);
+   float r=sqrt(max(0.,1.-z*z));vec3 H=frame*vec3(r*cos(phi),r*sin(phi),z);
    float vh=dot(V,H);L=reflect(-V,H);float nl=dot(N,L);
    if(vh<=0.||nl<=0.)continue;
    if(uModel==3)weight=FSchlick(vh,f0)*G1(nl)*G1(nv)*vh/max(nv*z,.000001);
    else weight=vec3(uSpecular*classicScale()*8.*PI*vh*nl/((uShininess+2.)*max(z,.000001)));
   }
-  specular+=envRadiance(L)*weight/48.;
+  sum+=envRadiance(L)*weight/48.;
  }
+ return sum;
+}
+void environmentLight(vec3 N,vec3 V,out vec3 diffuse,out vec3 specular){
+ diffuse=vec3(0.);specular=vec3(0.);vec3 f0=F0();
+ float blend=chartBlend(N);
+ // Each branch is evaluated only where its frame is nonsingular.
+ // Lambert/classic diffuse samples depend on N and environment, never on V.
+ if(blend<1.)diffuse+=(1.-blend)*diffuseEstimate(worldBasis(N,vec3(0.,0.,1.)),V,f0);
+ if(blend>0.)diffuse+=blend*diffuseEstimate(worldBasis(N,vec3(1.,0.,0.)),V,f0);
+ if(uModel==0)return;
+ vec3 axis=uModel==1?reflect(-V,N):N;
+ blend=chartBlend(axis);
+ if(blend<1.)specular+=(1.-blend)*specularEstimate(worldBasis(axis,vec3(0.,0.,1.)),N,V,f0);
+ if(blend>0.)specular+=blend*specularEstimate(worldBasis(axis,vec3(1.,0.,0.)),N,V,f0);
 }
 void main(){
  vec3 N=normalize(vNormal),V=normalize(cameraPosition-vWorldPosition),d,s;

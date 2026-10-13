@@ -1,38 +1,53 @@
 # Shader History
 
-An English/Japanese, browser-based study of how surface reflection models evolved and why their images differ. The project and its initial hosted demo are private.
+**One scene. Four reflection models. Learn by changing the light.**
 
-## Explore
+Shader History is an English/Japanese interactive guide to Lambert, Phong, Blinn–Phong, and modern microfacet PBR. Compare their actual WebGL output under the same geometry, camera, illumination, and color pipeline, then use the Guide to understand what problems each approach addresses.
 
-- Four real GLSL reflection models: Lambert, a BRDF-style Phong teaching variant, Blinn–Phong, and a modern GGX/Smith/Schlick microfacet material
-- Synchronized camera, geometry, lighting, and output pipeline in comparison mode; inspect each model individually
-- Sphere, knot, and rounded-cube geometry
-- Material parameters and plastic, metal, and rough-surface presets
-- Moving directional light, independent procedural environment illumination and visible background, optional explicit linking
-- Diffuse/specular decomposition, exposure, ACES on/off, and PNG render export
-- Bilingual Guide: direction diagrams, interactive lobe plot, publication timeline, historical context, equations, caveats, and primary sources
+![Four reflection models under shared lighting](docs/images/compare.png)
 
-The classical models are teaching variants rather than exact reproductions of historical rendering pipelines. Cook–Torrance (1982), GGX (2007), and Disney’s practical material work (2012) are explained as different contributions. PBR is not a single shader or a single invention date.
+## What you can explore
 
-## Run locally
+- Four custom GLSL models, side by side or individually
+- Synchronized orbit camera; a smooth geodesic sphere, knot, or rounded cube
+- Plastic, metal, and rough-surface presets, with model-appropriate parameters
+- Moving direct light, procedural environment lighting, and an independently selected visible background
+- Diffuse/specular isolation, exposure, ACES tone mapping, and PNG export
+- A bilingual Guide with direction diagrams, a lobe plot, historical context, equations, limitations, and links to primary research
 
-Requires Node.js 24 and a WebGL2-capable browser.
+The sphere uses 20,480 roughly uniform triangles with shared vertices and radial smooth normals. It has no latitude/longitude pole fan. The classic implementations are BRDF-style teaching variants, not exact reconstructions of the original papers. PBR is a family of approaches, not one shader invented on a single date.
+
+## Get started
+
+**Requirements:** Git, Node.js 24 (with npm), and a WebGL2-capable browser. The Guide remains readable when WebGL2 is unavailable.
 
 ```sh
+git clone https://github.com/domizo/shader-history.git
+cd shader-history
 npm ci
 npm run dev
 ```
 
-Production preview:
+Open the local URL printed by Vite. To test the production build:
 
 ```sh
 npm run build
 npm run preview -- --host 127.0.0.1 --port 4173
 ```
 
-Controls: drag to orbit, scroll to zoom; focus the viewer and use arrow keys to rotate. All parameter controls and navigation work with a keyboard. Light motion is off initially, including for reduced-motion users. The Guide remains available if WebGL is unavailable. The language preference is the only persisted user data; there is no backend, telemetry, account system, CDN asset request, or third-party material asset.
+Open `http://127.0.0.1:4173`. Access to the repository follows its current GitHub visibility and permissions; these instructions do not imply that a public release has occurred.
 
-## Verification
+Drag to orbit, scroll to zoom, or focus the viewer and use the arrow keys. Light motion is initially paused. Choose **EN / 日本語** in the header; the language preference is stored only in your browser. There is no backend, telemetry, runtime CDN, account system, or external material texture.
+
+## Real rendering and learning guide
+
+These are actual Chromium/WebGL2 captures, not generated concept images. Their source commit and CI provenance are recorded in [the screenshot record](docs/images/README.md).
+
+![Single-model material inspection](docs/images/single.png)
+
+![English learning guide](docs/images/guide.png)
+
+## Verification and limits
 
 ```sh
 npm run format:check
@@ -43,18 +58,52 @@ npx playwright install --with-deps chromium
 npm run test:e2e
 ```
 
-The CI workflow serves the **production build** and checks actual WebGL pixels, independent background/lighting behavior, parameter response, zero diffuse for the metallic PBR material, zero specular for Lambert, light motion, single-model selection, geometry, PNG export, bilingual Guide navigation, and phone overflow. Screenshots are attached as CI artifacts. Unit tests cover linear/sRGB conversion, Fresnel endpoints, GGX projected normalization and reciprocity, Smith bounds, single-scattering specular energy, and Lambert integration.
+The production-preview browser suite covers real GPU pixels, background/lighting independence, component isolation, moving light, material/shape controls, PNG export, EN/JA Guide navigation, mobile layout, and glossy sphere views. Numerical tests cover the BRDF/color pipeline, sphere topology and smooth normals, and environment-sampling frame continuity.
 
-## Technical boundaries
+See the [current verification record](docs/VERIFICATION.md), [implementation notes](docs/IMPLEMENTATION.md), and [primary sources](docs/SOURCES.md). Automated browser evidence uses Chromium with SwiftShader. Physical mobile GPUs, Safari, and every browser/driver combination have not been tested.
 
-See [implementation notes](docs/IMPLEMENTATION.md), [sources](docs/SOURCES.md), and [verification record](docs/VERIFICATION.md). Full bundled dependency licenses are in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Original project code is currently `UNLICENSED`; no open-source license grant is implied.
+This is an educational approximation, not a path tracer. Finite environment samples can leave visible sampling patterns. The common Fresnel-weighted Lambert coupling in the modern material is not strictly energy-conserving at grazing. Cast shadows, interreflection, anisotropy, transmission, subsurface scattering, and multiple-scattering compensation are outside the current scope.
+
+## License
+
+Original project code and documentation: [MIT](LICENSE), copyright © 2026 domizo. Bundled libraries and fonts retain their own licenses; complete notices are in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). The npm `private` flag prevents accidental package publication; it does not override the MIT license.
 
 ---
 
 ## 日本語
 
-Lambert、Phong、Blinn–Phong から現代の微小面 PBR まで、反射の考え方を歴史と実験の両方から学ぶプロジェクトです。同じ形状・視点・照明・色処理で比較し、単体表示、パラメータ変更、直接光の移動、背景と環境照明の分離、拡散/鏡面の分離を試せます。
+**同じシーンに、4つの反射モデル。光を変えて、違いを学ぶ。**
 
-Guide は初学者向けの方向ベクトルの説明から、BRDF の式、実装上の近似、一次資料までを日英で収録しています。歴史を単純な新旧の優劣として扱わず、それぞれが答えようとした問題を説明します。
+Lambert、Phong、Blinn–Phong、現代の微小面 PBR を、同じ形状・視点・照明・色処理で比較する学習プロジェクトです。単体表示、プラスチック・金属・粗い表面のプリセット、材質のパラメータ、ライトの移動、背景と環境照明の独立操作、拡散／鏡面の分離、PNG 保存を試せます。
 
-描画は実際の WebGL2 シェーダーです。古典モデルは BRDF 形式の教育用実装、PBR は GGX・Smith・Schlick と Lambert 拡散の組み合わせです。パストレーシング、透過、異方性、表面下散乱、多重散乱補償などは含みません。
+球は共有頂点と放射方向の滑らかな法線を持つ、20,480枚のほぼ均一な三角形で構成しています。緯度・経度分割のように極へ多数の三角形が集まる構造ではありません。Guide は方向ベクトルの基礎から、各手法が改善しようとした問題、式、近似の限界、一次資料までを日英で収録しています。
+
+### ローカルで起動する
+
+**必要なもの：** Git、Node.js 24（npm を含む）、WebGL2 対応ブラウザー。WebGL2 が使えない場合も Guide は読めます。
+
+```sh
+git clone https://github.com/domizo/shader-history.git
+cd shader-history
+npm ci
+npm run dev
+```
+
+Vite が表示するローカル URL を開きます。本番用ビルドを確認する場合：
+
+```sh
+npm run build
+npm run preview -- --host 127.0.0.1 --port 4173
+```
+
+`http://127.0.0.1:4173` を開いてください。リポジトリへのアクセスは GitHub の現在の公開範囲と権限に従います。この手順は公開切り替えの実施を意味しません。
+
+ドラッグで視点を回転、スクロールで拡大縮小できます。描画領域へフォーカスして矢印キーでも回転できます。上部の EN / 日本語で言語を切り替えます。保存されるのはブラウザー内の言語設定だけで、バックエンドやテレメトリーはありません。
+
+### 検証と注意点
+
+上のスクリーンショットは実際の WebGL2 描画です。[撮影元と CI の記録](docs/images/README.md)、[最新の検証結果](docs/VERIFICATION.md)、[実装の詳細](docs/IMPLEMENTATION.md)、[参考資料](docs/SOURCES.md)を参照できます。検証コマンドは上記の Verification and limits 節に掲載しています。
+
+自動ブラウザーテストは Chromium / SwiftShader で行っています。実機のモバイル GPU、Safari、すべてのブラウザーとドライバーの組み合わせを確認したものではありません。環境光は有限サンプルのため、サンプル模様が残ることがあります。現代モデルの Fresnel 重み付き Lambert 結合も、斜め方向で厳密なエネルギー保存を満たす層状材質モデルではありません。影、相互反射、透過、異方性、表面下散乱、多重散乱補償は含みません。
+
+独自のコードとドキュメントは [MIT ライセンス](LICENSE)です。依存ライブラリとフォントにはそれぞれのライセンスが適用され、全文を [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) に収録しています。

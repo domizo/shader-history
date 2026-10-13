@@ -59,3 +59,27 @@ export function classicLobe(
     : 1;
   return scale * Math.pow(Math.max(0, cosine), n);
 }
+
+/** CPU reference for the shader's world-fixed overlapping sampling charts. */
+export function environmentFrames(n: V3) {
+  const x = Math.max(0, Math.min(1, (Math.abs(n[2]) - 0.995) / 0.004));
+  const blend = x * x * (3 - 2 * x);
+  const charts: { weight: number; tangent: V3; bitangent: V3 }[] = [];
+  for (const [weight, rawTangent] of [
+    [1 - blend, [-n[1], n[0], 0]],
+    [blend, [0, -n[2], n[1]]],
+  ] as [number, V3][]) {
+    if (weight <= 0) continue;
+    const t = normalize(rawTangent);
+    charts.push({
+      weight,
+      tangent: t,
+      bitangent: [
+        n[1] * t[2] - n[2] * t[1],
+        n[2] * t[0] - n[0] * t[2],
+        n[0] * t[1] - n[1] * t[0],
+      ],
+    });
+  }
+  return charts;
+}

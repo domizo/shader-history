@@ -685,8 +685,8 @@ export default function App() {
                   />
                   <p className="small muted">
                     {t(
-                      "Original procedural light fields. 24 diffuse + 48 specular samples.",
-                      "独自の手続き的な光環境。拡散24＋鏡面48サンプル。",
+                      "Original procedural light fields. 24 diffuse + 48 specular samples per chart.",
+                      "独自の手続き的な光環境。座標系ごとに拡散24＋鏡面48サンプル。",
                     )}
                   </p>
                 </section>
